@@ -1,5 +1,6 @@
 {
 	"application_name":"CreditLens",
 	"bank_name": "Demo Bank",
-	"currency" : "INR"
+	"currency" : "INR",
+	"api_base_url": "http://127.0.0.1:8000"
 }
