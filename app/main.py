@@ -12,3 +12,10 @@ def home():
         "bank_name" : config["bank_name"],
         "currency" : config["currency"]
     }
+
+@app.get("/health")
+def health():
+    # Simple end point to confirm the API is running
+    return{
+        "status": "healthy"
+    }
