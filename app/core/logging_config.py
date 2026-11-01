@@ -18,5 +18,6 @@ def setup_logging():
     logging.basicConfig(
         filename = log_file_path,
         level = log_level,
-        format = "%(asctime)s | %(levelname)s | %(name)s | %(message)s" 
+        format = "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        force = True
     )
