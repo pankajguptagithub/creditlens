@@ -31,5 +31,6 @@ def health():
     # Log when the health endpoint is called
     logger.info("Health endpoint called")
     return{
+        "application_name": config["application_name"],
         "status": "healthy"
     }
