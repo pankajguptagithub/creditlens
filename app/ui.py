@@ -18,3 +18,14 @@ st.subheader(data["bank_name"])
 
 st.write("Currency:",data["currency"])
 st.write("API Status:", health_data["status"])
+
+
+customers_response = requests.get(
+    config["api_base_url"] + "/customers"
+)
+
+customers = customers_response.json()
+
+st.subheader("Customers")
+
+st.dataframe(customers)

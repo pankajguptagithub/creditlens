@@ -2,7 +2,7 @@
 	"application_name":"CreditLens",
 	"bank_name": "Demo Bank",
 	"currency" : "INR",
-	"api_base_url": "http://127.0.0.1:8001",
+	"api_base_url": "http://127.0.0.1:8002",
 	"log_directory": "logs",
 	"log_file_name" : "creditlens.log",
 	"log_level": "INFO"
