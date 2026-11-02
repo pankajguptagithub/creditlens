@@ -9,6 +9,7 @@ from app.domain.features import (
         add_credit_utilization,
         add_payment_features_to_customers
 )        
+from app.domain.risk import calculate_risk_score, get_risk_category
 
 setup_logging()
 config = load_config()
@@ -44,6 +45,8 @@ def health():
 @app.get("/customers")
 def get_customers():
 
+    logger.info("Customers endpoint called")
+
     # Load customer and payment data
     customers = load_customers()
     payments = load_payments()
@@ -58,7 +61,12 @@ def get_customers():
         payments,
     )
 
-    logger.info("Customers endpoint called")
+    # Add risk score
+    for customer in customers:
+        customer["risk_score"] = calculate_risk_score(customer)
+        customer["risk_category"] = get_risk_category(
+            customer["risk_score"]
+        )
 
     return customers
 
@@ -71,3 +79,37 @@ def get_customer(customer_id: str):
             return customer
 
     return {"error": "Customer not found"}
+
+@app.get("/risk/{customer_id}")
+def get_customer_risk(customer_id: str):
+    customers = get_customers()
+
+    for customer in customers:
+        if customer["customer_id"] == customer_id:
+            return{
+                "customer_id": customer["customer_id"],
+                "risk_score": customer["risk_score"],
+                "risk_category": customer["risk_category"],
+            }
+    return {"error": "Customer not found"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
