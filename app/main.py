@@ -61,3 +61,13 @@ def get_customers():
     logger.info("Customers endpoint called")
 
     return customers
+
+@app.get("/customers/{customer_id}")
+def get_customer(customer_id: str):
+    customers = get_customers()
+
+    for customer in customers:
+        if customer["customer_id"] == customer_id:
+            return customer
+
+    return {"error": "Customer not found"}
