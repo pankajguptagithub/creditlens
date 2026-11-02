@@ -1,0 +1,17 @@
+[
+	{
+		"customer_id": "C001",
+		"total_payments": 12,
+		"late_payments": 0
+	},
+	{
+		"customer_id": "C002",
+		"total_payments": 12,
+		"late_payments": 4
+	},
+	{
+		"customer_id": "C003",
+		"total_payments": 12,
+		"late_payments": 2
+	}
+]
