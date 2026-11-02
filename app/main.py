@@ -4,7 +4,11 @@ from fastapi import FastAPI
 from app.core.config import load_config
 from app.core.logging_config import setup_logging
 from app.data.customer_repository import load_customers
-from app.domain.features import add_credit_utilization
+from app.data.payment_repository import load_payments
+from app.domain.features import (
+        add_credit_utilization,
+        add_payment_features_to_customers
+)        
 
 setup_logging()
 config = load_config()
@@ -39,12 +43,20 @@ def health():
 
 @app.get("/customers")
 def get_customers():
-    # Load customer records from our data source
+
+    # Load customer and payment data
     customers = load_customers()
+    payments = load_payments()
 
     # Add credit utilization to each customer
     for customer in customers:
         add_credit_utilization(customer)
+
+    # Add payment behaviour features
+    add_payment_features_to_customers(
+        customers,
+        payments,
+    )
 
     logger.info("Customers endpoint called")
 
