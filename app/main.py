@@ -7,8 +7,9 @@ from app.data.customer_repository import load_customers
 from app.data.payment_repository import load_payments
 from app.domain.features import (
         add_credit_utilization,
+        add_debt_to_income,
         add_payment_features_to_customers
-)        
+)
 from app.domain.risk import calculate_risk_score, get_risk_category
 
 setup_logging()
@@ -67,6 +68,8 @@ def get_customers():
         customer["risk_category"] = get_risk_category(
             customer["risk_score"]
         )
+        add_debt_to_income(customer)
+        add_credit_utilization(customer)
 
     return customers
 
@@ -92,24 +95,3 @@ def get_customer_risk(customer_id: str):
                 "risk_category": customer["risk_category"],
             }
     return {"error": "Customer not found"}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

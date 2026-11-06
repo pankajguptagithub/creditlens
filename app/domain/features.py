@@ -46,3 +46,20 @@ def add_payment_features_to_customers(customers,payments):
             add_payment_features(customer,payment)
 
     return customers
+
+def calculate_debt_to_income(annual_debt_obligation, annual_income):
+    # Calculate how much of annual income goes toward debt obligations
+    debt_to_income = annual_debt_obligation / annual_income
+
+    return debt_to_income
+
+def add_debt_to_income(customer):
+    # Calculate the customer's debt-to-income ratio
+    debt_to_income = calculate_debt_to_income(
+        customer["annual_debt_obligation"],
+        customer["annual_income"]
+    )
+
+    customer["debt_to_income"] = debt_to_income
+    
+    return customer

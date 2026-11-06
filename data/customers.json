@@ -14,8 +14,9 @@
 		"credit_used": 425000
 	},
 	{
-		customer_id": "C003",
+		"customer_id": "C003",
 		"annual_income": 600000,
+		"annual_debt_obligation": 270000,
 		"credit_limit": 200000,
 		"credit_used": 150000
 	}
