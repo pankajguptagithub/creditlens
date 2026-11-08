@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from app.core.config import load_config
 from app.core.logging_config import setup_logging
-from app.data.customer_repository import load_customers
+from app.data.customer_repository import load_customers_from_delta
 from app.data.payment_repository import load_payments
 from app.domain.features import (
         add_credit_utilization,
@@ -49,7 +49,7 @@ def get_customers():
     logger.info("Customers endpoint called")
 
     # Load customer and payment data
-    customers = load_customers()
+    customers = load_customers_from_delta()
     payments = load_payments()
 
     # Add credit utilization to each customer
