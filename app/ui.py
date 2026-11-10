@@ -29,3 +29,22 @@ customers = customers_response.json()
 st.subheader("Customers")
 
 st.dataframe(customers)
+
+#data_quality_response = requests.get(
+#    config["api_base_url"] + "/data-quality"
+#)
+#
+#data_quality = data_quality_response.json()
+#print(data_quality)
+#
+#customer_errors = data_quality["customer_errors"]
+#payment_errors = data_quality["payment_errors"]
+#
+#if not customer_errors and not payment_errors:
+#    st.success("Data Quality: Passed")
+#else:
+#    st.error("Data Quality: Failed")
+
+
+
+

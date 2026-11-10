@@ -16,9 +16,9 @@ def find_payment_by_customer_id(payments, customer_id):
 
     return None
 
-def laod_payments_from_delta():
+def load_payments_from_delta():
     # Open the payment Delta table
-    delta_table = DeltaTable("/data/delta/payments")
+    delta_table = DeltaTable("data/delta/payments")
 
 
     # Read the Delta table into an Arrow table
