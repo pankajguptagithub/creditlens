@@ -19,6 +19,19 @@ st.subheader(data["bank_name"])
 st.write("Currency:",data["currency"])
 st.write("API Status:", health_data["status"])
 
+data_quality_response = requests.get(
+    config["api_base_url"] + "/data-quality"
+)
+
+data_quality = data_quality_response.json()
+
+customer_errors = data_quality["customer_errors"]
+payment_errors = data_quality["payment_errors"]
+
+if not customer_errors and not payment_errors:
+    st.success("Data Quality: Passed")
+else:
+    st.error("Data Quality: Failed")
 
 customers_response = requests.get(
     config["api_base_url"] + "/customers"

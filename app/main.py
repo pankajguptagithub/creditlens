@@ -11,6 +11,7 @@ from app.domain.features import (
         add_payment_features_to_customers
 )
 from app.domain.risk import calculate_risk_score, get_risk_category
+from app.domain.data_quality import validate_customers, validate_payments
 
 setup_logging()
 config = load_config()
@@ -95,3 +96,20 @@ def get_customer_risk(customer_id: str):
                 "risk_category": customer["risk_category"],
             }
     return {"error": "Customer not found"}
+
+@app.get("/data-quality")
+def get_data_quality():
+    # Load the current data from Delta tables
+    customers = load_customers_from_delta()
+    payments = load_payments_from_delta()
+
+    # Run our existing validation rules
+    customer_errors = validate_customers(customers)
+    payment_errors = validate_payments(payments)
+
+    logger.info("Data quality endpoint called")
+
+    return{
+        "customer_errors": customer_errors,
+        "payment_errors": payment_errors
+    }
