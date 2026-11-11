@@ -60,6 +60,27 @@ def check_required_payment_fields(payment):
 
     return missing_fields
 
+def validate_payment(payment):
+    # Payment counts must exist
+    if "total_payments" not in payment:
+        return False
+
+    if "late_payments" not in payment:
+        return False
+
+    # Payment counts can't be negative
+    if payment["total_payments"] < 0:
+        return False
+
+    if payment["late_payments"] < 0:
+        return False
+
+    # Late payments can't exceed total payments
+    if payment["late_payments"] > payment["total_payments"]:
+        return False
+
+    return True
+
 def validate_payments(payments):
     # Validate every payment record and collect any problems
     validation_errors = []
@@ -87,7 +108,7 @@ def validate_payments(payments):
     return validation_errors
 
 def check_customer_values(customer):
-    # Validate basic numeric values required for feature enginerring
+    # Validate basic numeric values required for feature engineering
     validation_errors = []
 
     if customer["annual_income"] <= 0:
@@ -99,10 +120,10 @@ def check_customer_values(customer):
     if customer["credit_limit"] <= 0:
         validation_errors.append("credit_limit must be greather than zero")
 
-    if customer["credit_limit"] < 0:
+    if customer["credit_used"] < 0:
         validation_errors.append("credit_used cannot be negative")
 
-    return validation_errorso
+    return validation_errors
 
 
 def check_payment_values(payment):
@@ -110,7 +131,7 @@ def check_payment_values(payment):
     validation_errors = []
 
     if payment["total_payments"] <= 0:
-        validation_errors.append("total_payments must be greather than zero")
+        validation_errors.append("total_payments must be greater than zero")
 
     if payment["late_payments"] < 0:
         validation_errors.append("late_payments cann't be negative")
@@ -121,41 +142,3 @@ def check_payment_values(payment):
         )
 
     return validation_errors
-def validate_customer_id(customer):
-    # check that every customer has an identifier 
-
-    if "customer_id" not in customer:
-        return False
-
-    return True
-
-def validate_annual_income(customer):
-    # Annual income must exist and must be greater than zero
-
-    if "annual_income" not in customer:
-        return False
-
-    if customer["annual_income"] <= 0:
-        return False
-
-    return True
-
-def validate_customer(customer):
-    # A customer is valid only when all customer checks pass
-    if not validate_customer_id(customer):
-        return False
-
-    if not validate_annual_income(customer):
-        return False
-
-    return True
-
-def validate_customers(customers):
-    # Collect customer IDs that fail validation
-    invalid_customers = []
-
-    for customer in customers:
-        if not validate_customer(customer):
-            invalid_customers.append(customer["customer_id"])
-
-    return invalid_customers

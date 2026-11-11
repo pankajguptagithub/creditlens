@@ -20,7 +20,6 @@ def load_payments_from_delta():
     # Open the payment Delta table
     delta_table = DeltaTable("data/delta/payments")
 
-
     # Read the Delta table into an Arrow table
     payment_table = delta_table.to_pyarrow_table()
 
