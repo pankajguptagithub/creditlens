@@ -1,0 +1,14 @@
+[
+	{
+		"customer_id": "C001",
+		"defaulted": 0
+	},
+	{
+		"customer_id": "C002",
+		"defaulted": 1
+	},
+	{
+		"customer_id": "C003",
+		"defaulted": 0
+	}
+]
