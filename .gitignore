@@ -30,7 +30,7 @@ Thumbs.db
 
 
 #Generated data and model artifacts
-#data/
+data/
 models/
 
 #Logs
