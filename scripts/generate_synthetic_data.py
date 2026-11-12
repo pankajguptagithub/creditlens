@@ -1,6 +1,8 @@
 import random
+import pyarrow as pa
 
 from app.core.config import load_config
+from deltalake import write_deltalake
 
 def generate_customers():
     config = load_config()
@@ -86,3 +88,36 @@ def generate_labels(customers,payments):
         })
 
     return labels
+
+def write_to_delta(data, delta_path):
+    # Convert Python records into an Arrow table
+    table = pa.Table.from_pylist(data)
+
+    # Store the generated dataset as a Delta table
+    write_deltalake(
+        delta_path,
+        table,
+        mode = "overwrite",
+    )
+
+def generate_all_data():
+    customers = generate_customers()
+    payments = generate_payments(customers)
+    labels = generate_labels(customers, payments)
+
+    write_to_delta(
+        customers,
+        "data/delta/customers"
+    )
+
+    write_to_delta(
+        payments,
+        "data/delta/payments"
+    )
+
+    write_to_delta(
+        labels,
+        "data/delta/labels"
+    )
+
+generate_all_data()
