@@ -7,5 +7,9 @@
 	"log_file_name" : "creditlens.log",
 	"log_level": "INFO",
 	"synthetic_customer_count": 100,
-	"synthetic_random_seed": 42
+	"synthetic_random_seed": 42,
+	"risk_thresholds":{
+		"medium": 0.30,
+		"high" : 0.60
+	}
 }
