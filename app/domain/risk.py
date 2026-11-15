@@ -10,7 +10,6 @@ from app.domain.features import (
     calculate_debt_to_income,
     calculate_late_payment_ratio
 )
-print("Inside risk.py")
 
 def calculate_risk_score(customer):
     # Simple rule-based baseline risk score
@@ -22,7 +21,6 @@ def calculate_risk_score(customer):
     return round(risk_score,2)
 
 def score_customer(model, customer_features):
-    print("Debug: inside score_customer")
     # Calculate the customer's probability of default
     default_probability = predict_default_probability(
         model,
@@ -68,7 +66,6 @@ def build_customer_features(customer,payment):
 
 def score_customer_record(model, customer, payments):
     # Find the payment history for this customer
-    print("DEBUG: inside score_customer_record")
     payment = find_payment_by_customer_id(
         payments,
         customer["customer_id"]
@@ -89,7 +86,6 @@ def score_customer_record(model, customer, payments):
         customer_features
     )
 
-    print("DEBUG: risk_result is ",risk_result)
     return {
         "customer_id": customer["customer_id"],
         "default_probability": risk_result["default_probability"],
