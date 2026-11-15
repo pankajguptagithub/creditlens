@@ -1,7 +1,8 @@
 from app.data.payment_repository import find_payment_by_customer_id
+from app.domain.explainability import explain_risk
 
 from app.domain.model import (
-        get_risk_band
+        get_risk_band,
         predict_default_probability
 )
 from app.domain.features import (
@@ -9,6 +10,7 @@ from app.domain.features import (
     calculate_debt_to_income,
     calculate_late_payment_ratio
 )
+print("Inside risk.py")
 
 def calculate_risk_score(customer):
     # Simple rule-based baseline risk score
@@ -20,6 +22,7 @@ def calculate_risk_score(customer):
     return round(risk_score,2)
 
 def score_customer(model, customer_features):
+    print("Debug: inside score_customer")
     # Calculate the customer's probability of default
     default_probability = predict_default_probability(
         model,
@@ -28,10 +31,12 @@ def score_customer(model, customer_features):
 
     # Convert the probability into an understandable risk category
     risk_band = get_risk_band(default_probability)
+    reasons = explain_risk(customer_features)
 
     return{
         "default_probability": default_probability,
-        "risk_band": risk_band
+        "risk_band": risk_band,
+        "reasons": reasons
     }
 
 def get_risk_category(risk_score):
@@ -63,6 +68,7 @@ def build_customer_features(customer,payment):
 
 def score_customer_record(model, customer, payments):
     # Find the payment history for this customer
+    print("DEBUG: inside score_customer_record")
     payment = find_payment_by_customer_id(
         payments,
         customer["customer_id"]
@@ -83,8 +89,10 @@ def score_customer_record(model, customer, payments):
         customer_features
     )
 
+    print("DEBUG: risk_result is ",risk_result)
     return {
         "customer_id": customer["customer_id"],
         "default_probability": risk_result["default_probability"],
-        "risk_band": risk_result["risk_band"]
+        "risk_band": risk_result["risk_band"],
+        "reasons": risk_result["reasons"]
     }

@@ -21,7 +21,6 @@ def verify_risk_scoring():
     )
 
     features, targets = prepare_model_data(training_data)
-
     model, x_test, y_test = train_model(
         features,
         targets

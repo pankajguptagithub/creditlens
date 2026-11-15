@@ -13,6 +13,16 @@ from app.domain.features import (
 from app.domain.risk import calculate_risk_score, get_risk_category
 from app.domain.data_quality import validate_customers, validate_payments
 
+from app.data.label_repository import load_labels_from_delta
+from app.domain.model import(
+    prepare_model_data,
+    train_model
+)
+
+from app.domain.training_data import build_training_data
+from app.domain.risk import score_customer_record
+
+
 setup_logging()
 config = load_config()
 
@@ -86,16 +96,34 @@ def get_customer(customer_id: str):
 
 @app.get("/risk/{customer_id}")
 def get_customer_risk(customer_id: str):
-    customers = get_customers()
+    customers = load_customers_from_delta()
+    payments = load_payments_from_delta()
+    labels = load_labels_from_delta()
+
+    training_data = build_training_data(
+        customers,
+        payments,
+        labels
+    )
+
+    features, targets = prepare_model_data(training_data)
+    model, x_test, y_test = train_model(
+        features,
+        targets
+    )
 
     for customer in customers:
         if customer["customer_id"] == customer_id:
-            return{
-                "customer_id": customer["customer_id"],
-                "risk_score": customer["risk_score"],
-                "risk_category": customer["risk_category"],
-            }
-    return {"error": "Customer not found"}
+            risk_result = score_customer_record(
+                model,
+                customer,
+                payments
+            )
+            return risk_result
+
+    return {
+        "error": "Customer not found"
+    }
 
 @app.get("/data-quality")
 def get_data_quality():
@@ -112,4 +140,36 @@ def get_data_quality():
     return{
         "customer_errors": customer_errors,
         "payment_errors": payment_errors
+    }
+
+@app.get("/risk/{customer_id}")
+def get_customer_risk(customer_id):
+    print("Inside risk end point")
+    customers = load_customers_from_delta()
+    payments = load_payments_from_delta()
+    labels = load_payments_from_delta()
+
+    training_data = build_training_data(
+        customers,
+        payments,
+        labels
+    )
+
+    features, targets = prepare_model_data(training_data)
+    model, x_test, y_test = train_model(
+        features,
+        targets
+    )
+
+    for customer in customers:
+        if customer["customer_id"] == customer_id:
+            print("DEBUG: Inside loop for score_customer_record")
+            return score_customer_record(
+                model,
+                customer,
+                payments
+            )
+
+    return{
+        "error": "Customer not found"
     }

@@ -43,21 +43,31 @@ st.subheader("Customers")
 
 st.dataframe(customers)
 
-#data_quality_response = requests.get(
-#    config["api_base_url"] + "/data-quality"
-#)
-#
-#data_quality = data_quality_response.json()
-#print(data_quality)
-#
-#customer_errors = data_quality["customer_errors"]
-#payment_errors = data_quality["payment_errors"]
-#
-#if not customer_errors and not payment_errors:
-#    st.success("Data Quality: Passed")
-#else:
-#    st.error("Data Quality: Failed")
+st.subheader("Borrower Risk")
 
+customer_id = st.text_input("Customer ID")
 
+if st.button("Analyze Risk"):
+    risk_response = requests.get(
+        config["api_base_url"] + "/risk/" + customer_id
+    )
 
+    risk_result = risk_response.json()
 
+    if "error" in risk_result:
+        st.error(risk_result["error"])
+    else:
+        st.write(
+            "Probability of Default:",
+            risk_result["default_probability"]
+        )
+
+        st.write(
+            "Risk Band:",
+            risk_result["risk_band"]
+        )
+
+        st.write("Risk Reasons")
+
+        for reason in risk_result["reasons"]:
+            st.write("-",reason)
