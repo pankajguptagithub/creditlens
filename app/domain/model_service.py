@@ -5,6 +5,7 @@ from app.data.label_repository import load_labels_from_delta
 from app.domain.training_data import build_training_data
 from app.domain.model import prepare_model_data, train_model
 from app.domain.risk import score_customer_record
+from app.core.config import load_config
 
 def load_model_inputs():
     # Load all Delta datasets required for model training and scoring
@@ -70,3 +71,11 @@ def prepare_model_service():
     )
 
     return model,customers,payments,x_test,y_test
+
+def get_model_info():
+    config = load_config()
+
+    return {
+        "name": config["model"]["name"],
+        "version": config["model"]["version"],
+    }

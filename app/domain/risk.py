@@ -1,5 +1,6 @@
 from app.data.payment_repository import find_payment_by_customer_id
 from app.domain.explainability import explain_risk
+from app.core.config import load_config
 
 from app.domain.model import (
         get_risk_band,
@@ -10,6 +11,8 @@ from app.domain.features import (
     calculate_debt_to_income,
     calculate_late_payment_ratio
 )
+
+from app.domain.audit import create_audit_record 
 
 def calculate_risk_score(customer):
     # Simple rule-based baseline risk score
@@ -65,12 +68,12 @@ def build_customer_features(customer,payment):
     return customer_features
 
 def score_customer_record(model, customer, payments):
+
     # Find the payment history for this customer
     payment = find_payment_by_customer_id(
         payments,
         customer["customer_id"]
     )
-
     if payment is None:
         return None
 
@@ -85,10 +88,18 @@ def score_customer_record(model, customer, payments):
         model,
         customer_features
     )
+    config = load_config()
+    audit_record = create_audit_record(
+        customer["customer_id"],
+        risk_result
+    )
 
     return {
         "customer_id": customer["customer_id"],
         "default_probability": risk_result["default_probability"],
         "risk_band": risk_result["risk_band"],
-        "reasons": risk_result["reasons"]
+        "reasons": risk_result["reasons"],
+        "model_name": config["model"]["name"],
+        "model_version": config["model"]["version"],
+        "audit": audit_record
     }

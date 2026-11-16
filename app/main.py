@@ -26,6 +26,7 @@ from app.domain.portfolio import(
 from app.domain.model_service import(
     find_customer_by_id,
     prepare_model_service,
+    get_model_info
 )
 
 from app.domain.model_evaluation import(
@@ -169,8 +170,9 @@ def get_portfolio():
 
 @app.get("/model-evaluation")
 def get_model_evaluation():
+
+    model_info = get_model_info()
     model, customers,payments, x_test, y_test = prepare_model_service()
-    
     metrics = calculate_evaluation_metrics(
         model,
         x_test,
@@ -184,6 +186,7 @@ def get_model_evaluation():
     )
 
     return {
+        "model": model_info,
         "metrics": metrics,
         "confusion_metrics": confusion
     }

@@ -45,6 +45,7 @@ st.dataframe(customers)
 
 st.subheader("Borrower Risk")
 
+
 customer_id = st.text_input("Customer ID")
 
 if st.button("Analyze Risk"):
@@ -59,12 +60,27 @@ if st.button("Analyze Risk"):
     else:
         st.write(
             "Probability of Default:",
-            risk_result["default_probability"]
+            f"{risk_result['default_probability']:.2%}"
+        )
+
+        st.write(
+                "Model:",
+                risk_result["model_name"],
+                "v" + risk_result["model_version"]
         )
 
         st.write(
             "Risk Band:",
             risk_result["risk_band"]
+        )
+        st.write(
+            "Request ID:",
+            risk_result["audit"]["request_id"]
+        )
+
+        st.write(
+            "Scored At:",
+            risk_result["audit"]["timestamp"]
         )
 
         st.write("Risk Reasons")
@@ -110,9 +126,15 @@ evaluation_response = requests.get(
 )
 
 evaluation = evaluation_response.json()
+model_info = evaluation["model"]
 metrics = evaluation["metrics"]
 confusion = evaluation["confusion_metrics"]
 
+st.write(
+    "Model:",
+    model_info["name"],
+    "v" + model_info["version"]
+)
 st.write("Accuracy:", f"{metrics['accuracy']:.2%}")
 st.write("Precision:",f"{metrics['precision']:.2%}")
 st.write("Recall:",f"{metrics['recall']:.2%}")
