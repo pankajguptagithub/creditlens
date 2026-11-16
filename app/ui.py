@@ -71,3 +71,54 @@ if st.button("Analyze Risk"):
 
         for reason in risk_result["reasons"]:
             st.write("-",reason)
+
+st.subheader("Portfolio Analytics")
+
+portfolio_response = requests.get(
+    config["api_base_url"] + "/portfolio"
+)
+
+portfolio = portfolio_response.json()
+
+st.write(
+    "Total Customers",
+    portfolio["total_customers"],
+)
+
+st.write(
+    "Average Probability of Default:",
+    f"{portfolio['average_default_probability']:.2%}"
+)
+
+st.write("Risk Distribution:")
+
+st.bar_chart(portfolio["risk_bands"])
+
+st.write("High Risk Customers")
+
+high_risk_customers = portfolio["high_risk_customers"]
+
+if high_risk_customers:
+    st.dataframe(high_risk_customers)
+else:
+    st.write("No high-risk customers found")
+
+st.subheader("Model evaluation")
+
+evaluation_response = requests.get(
+        config["api_base_url"] + "/model-evaluation"
+)
+
+evaluation = evaluation_response.json()
+metrics = evaluation["metrics"]
+confusion = evaluation["confusion_metrics"]
+
+st.write("Accuracy:", f"{metrics['accuracy']:.2%}")
+st.write("Precision:",f"{metrics['precision']:.2%}")
+st.write("Recall:",f"{metrics['recall']:.2%}")
+st.write("F1 Score:",f"{metrics['f1']:.2%}")
+st.write("ROC-AUC:",f"{metrics['roc_auc']:.3f}")
+st.write("Brier Score:",f"{metrics['brier_score']:.2%}")
+
+st.write("Confusion Metrics")
+st.json(confusion)

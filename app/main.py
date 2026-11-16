@@ -1,10 +1,8 @@
 import logging
-from fastapi import FastAPI
 
+from fastapi import FastAPI
 from app.core.config import load_config
 from app.core.logging_config import setup_logging
-from app.data.customer_repository import load_customers_from_delta
-from app.data.payment_repository import load_payments_from_delta
 from app.domain.features import (
         add_credit_utilization,
         add_debt_to_income,
@@ -13,15 +11,27 @@ from app.domain.features import (
 from app.domain.risk import calculate_risk_score, get_risk_category
 from app.domain.data_quality import validate_customers, validate_payments
 
-from app.data.label_repository import load_labels_from_delta
 from app.domain.model import(
     prepare_model_data,
     train_model
 )
-
 from app.domain.training_data import build_training_data
 from app.domain.risk import score_customer_record
+from app.domain.portfolio import(
+    score_portfolio,
+    summarize_risk_bands,
+    calculate_average_default_probability,
+    find_high_risk_customers
+)
+from app.domain.model_service import(
+    find_customer_by_id,
+    prepare_model_service,
+)
 
+from app.domain.model_evaluation import(
+    calculate_evaluation_metrics,
+    build_confusion_metrics
+)
 
 setup_logging()
 config = load_config()
@@ -60,8 +70,7 @@ def get_customers():
     logger.info("Customers endpoint called")
 
     # Load customer and payment data
-    customers = load_customers_from_delta()
-    payments = load_payments_from_delta()
+    _, customers,payments, _, _ = prepare_model_service()
 
     # Add credit utilization to each customer
     for customer in customers:
@@ -86,50 +95,46 @@ def get_customers():
 
 @app.get("/customers/{customer_id}")
 def get_customer(customer_id: str):
-    customers = get_customers()
 
-    for customer in customers:
-        if customer["customer_id"] == customer_id:
-            return customer
+    _,customers,_,_,_ = prepare_model_service()
+    customer = find_customer_by_id(
+        customers,
+        customer_id
+    )
 
-    return {"error": "Customer not found"}
+    if customer is None:
+        return {
+            "error" : "Customer not found"
+        }
+
+    return customer
 
 @app.get("/risk/{customer_id}")
 def get_customer_risk(customer_id: str):
-    customers = load_customers_from_delta()
-    payments = load_payments_from_delta()
-    labels = load_labels_from_delta()
 
-    training_data = build_training_data(
+    model, customers,payments, x_test, y_test = prepare_model_service()
+    customer = find_customer_by_id(
         customers,
-        payments,
-        labels
+        customer_id
     )
 
-    features, targets = prepare_model_data(training_data)
-    model, x_test, y_test = train_model(
-        features,
-        targets
+    if customer is None:
+        return{
+            "error" : "Customer not found"
+        }
+
+    risk_result = score_customer_record(
+        model,
+        customer,
+        payments
     )
 
-    for customer in customers:
-        if customer["customer_id"] == customer_id:
-            risk_result = score_customer_record(
-                model,
-                customer,
-                payments
-            )
-            return risk_result
-
-    return {
-        "error": "Customer not found"
-    }
+    return risk_result
 
 @app.get("/data-quality")
 def get_data_quality():
-    # Load the current data from Delta tables
-    customers = load_customers_from_delta()
-    payments = load_payments_from_delta()
+
+    _, customers,payments, _, _ = prepare_model_service()
 
     # Run our existing validation rules
     customer_errors = validate_customers(customers)
@@ -142,34 +147,43 @@ def get_data_quality():
         "payment_errors": payment_errors
     }
 
-@app.get("/risk/{customer_id}")
-def get_customer_risk(customer_id):
-    print("Inside risk end point")
-    customers = load_customers_from_delta()
-    payments = load_payments_from_delta()
-    labels = load_payments_from_delta()
+@app.get("/portfolio")
+def get_portfolio():
 
-    training_data = build_training_data(
+    model, customers,payments, x_test, y_test = prepare_model_service()
+
+    risk_results = score_portfolio(
+        model,
         customers,
-        payments,
-        labels
+        payments
     )
 
-    features, targets = prepare_model_data(training_data)
-    model, x_test, y_test = train_model(
-        features,
-        targets
+    return {
+        "total_customers": len(risk_results),
+        "risk_bands": summarize_risk_bands(risk_results),
+        "average_default_probability":
+            calculate_average_default_probability(risk_results),
+        "high_risk_customers":
+            find_high_risk_customers(risk_results)
+    }
+
+@app.get("/model-evaluation")
+def get_model_evaluation():
+    model, customers,payments, x_test, y_test = prepare_model_service()
+    
+    metrics = calculate_evaluation_metrics(
+        model,
+        x_test,
+        y_test
     )
 
-    for customer in customers:
-        if customer["customer_id"] == customer_id:
-            print("DEBUG: Inside loop for score_customer_record")
-            return score_customer_record(
-                model,
-                customer,
-                payments
-            )
+    confusion = build_confusion_metrics(
+        model,
+        x_test,
+        y_test
+    )
 
-    return{
-        "error": "Customer not found"
+    return {
+        "metrics": metrics,
+        "confusion_metrics": confusion
     }
