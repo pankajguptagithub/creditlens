@@ -12,8 +12,15 @@
 		"medium": 0.30,
 		"high" : 0.60
 	},
-	"model": {
+	"model":{
 		"name": "creditlens_logistic_regression",
 		"version": "1.0"
+	},
+	"audit_database_path": "data/creditlens.db",
+	"redis": {
+		"enabled": true,
+		"host": "localhost",
+		"port": 6379,
+		"ttl_seconds": 300
 	}
 }

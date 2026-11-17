@@ -4,3 +4,4 @@ streamlit
 requests
 deltalake
 scikit-learn
+redis

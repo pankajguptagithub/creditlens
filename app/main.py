@@ -34,6 +34,8 @@ from app.domain.model_evaluation import(
     build_confusion_metrics
 )
 
+from app.data.audit_repository import load_audit_records
+
 setup_logging()
 config = load_config()
 
@@ -190,3 +192,8 @@ def get_model_evaluation():
         "metrics": metrics,
         "confusion_metrics": confusion
     }
+
+@app.get("/audit")
+def get_audit_records():
+
+    return load_audit_records()

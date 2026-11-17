@@ -14,6 +14,11 @@ from app.domain.features import (
 
 from app.domain.audit import create_audit_record 
 
+from app.data.audit_repository import(
+    create_audit_table,
+    save_audit_record
+)
+
 def calculate_risk_score(customer):
     # Simple rule-based baseline risk score
     risk_score = (
@@ -93,6 +98,8 @@ def score_customer_record(model, customer, payments):
         customer["customer_id"],
         risk_result
     )
+    create_audit_table()
+    save_audit_record(audit_record)
 
     return {
         "customer_id": customer["customer_id"],

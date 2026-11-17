@@ -144,3 +144,18 @@ st.write("Brier Score:",f"{metrics['brier_score']:.2%}")
 
 st.write("Confusion Metrics")
 st.json(confusion)
+
+st.subheader("Recent Risk Audit")
+
+audit_response = requests.get(
+    config["api_base_url"] + "/audit"
+)
+
+audit_records = audit_response.json()
+
+if audit_records:
+    st.dataframe(
+        audit_records[:10]
+    )
+else:
+    st.write("No audit records found")
