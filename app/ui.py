@@ -121,6 +121,17 @@ else:
 
 st.subheader("Model evaluation")
 
+model_status_response = requests.get(
+    config["api_base_url"] + "/model-status"
+)
+
+model_status = model_status_response.json()
+
+st.write(
+    "Model Artifact",
+    "Available" if model_status["artifact_available"] else "Missing"
+)
+
 evaluation_response = requests.get(
         config["api_base_url"] + "/model-evaluation"
 )

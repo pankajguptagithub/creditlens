@@ -26,7 +26,8 @@ from app.domain.portfolio import(
 from app.domain.model_service import(
     find_customer_by_id,
     prepare_model_service,
-    get_model_info
+    get_model_info,
+    get_model_status
 )
 
 from app.domain.model_evaluation import(
@@ -35,6 +36,11 @@ from app.domain.model_evaluation import(
 )
 
 from app.data.audit_repository import load_audit_records
+
+from app.data.cache_repository import(
+    get_cached_risk,
+    save_cached_risk
+)
 
 setup_logging()
 config = load_config()
@@ -113,9 +119,15 @@ def get_customer(customer_id: str):
     return customer
 
 @app.get("/risk/{customer_id}")
-def get_customer_risk(customer_id: str):
+def get_customer_risk(customer_id):
+    cached_result = get_cached_risk(customer_id)
+
+    if cached_result is not None:
+        cached_result["cache_status"] = "HIT"
+        return cached_result
 
     model, customers,payments, x_test, y_test = prepare_model_service()
+
     customer = find_customer_by_id(
         customers,
         customer_id
@@ -132,7 +144,15 @@ def get_customer_risk(customer_id: str):
         payments
     )
 
+    save_cached_risk(
+        customer_id,
+        risk_result
+    )
+
+    risk_result["cache_status"] = "MISS"
+
     return risk_result
+
 
 @app.get("/data-quality")
 def get_data_quality():
@@ -197,3 +217,25 @@ def get_model_evaluation():
 def get_audit_records():
 
     return load_audit_records()
+
+@app.get("/model-status")
+def get_current_model_status():
+    return get_model_status()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

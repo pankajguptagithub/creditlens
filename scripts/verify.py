@@ -10,7 +10,10 @@ from app.domain.portfolio import (
     summarize_risk_bands
 )
 
-from app.domain.model_service import prepare_model_service
+from app.domain.model_service import (
+        prepare_model_service,
+        get_model_status
+)        
 
 model,customers,payments,x_test,y_test = prepare_model_service()
 
@@ -43,3 +46,5 @@ def display_portfolio_results():
     print("Portfolio summary:",portfolio_summary)
 
 display_portfolio_results()
+
+print("Model status:", get_model_status())
