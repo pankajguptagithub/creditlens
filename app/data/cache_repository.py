@@ -9,7 +9,9 @@ def get_redis_client():
     return redis.Redis(
         host = config["redis"]["host"],
         port = config["redis"]["port"],
-        decode_responses = True
+        decode_responses = True,
+        socket_connect_timeout=0.2,
+        socket_timeout=0.2
     )
 def get_cached_risk(customer_id):
     try:
@@ -20,12 +22,12 @@ def get_cached_risk(customer_id):
         )
 
         if cached_result is None:
-            return None
+            return None, "MISS"
 
-        return json.loads(cached_result)
+        return json.loads(cached_result),"HIT"
 
     except (RedisError,ConnectionError):
-        return None
+        return None, "BYPASS"
 
 def save_cached_risk(customer_id,risk_result):
     try:

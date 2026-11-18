@@ -120,10 +120,10 @@ def get_customer(customer_id: str):
 
 @app.get("/risk/{customer_id}")
 def get_customer_risk(customer_id):
-    cached_result = get_cached_risk(customer_id)
+    cached_result, cache_status = get_cached_risk(customer_id)
 
     if cached_result is not None:
-        cached_result["cache_status"] = "HIT"
+        cached_result["cache_status"] = cache_status
         return cached_result
 
     model, customers,payments, x_test, y_test = prepare_model_service()
@@ -149,7 +149,7 @@ def get_customer_risk(customer_id):
         risk_result
     )
 
-    risk_result["cache_status"] = "MISS"
+    risk_result["cache_status"] = cache_status
 
     return risk_result
 

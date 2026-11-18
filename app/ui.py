@@ -88,6 +88,19 @@ if st.button("Analyze Risk"):
         for reason in risk_result["reasons"]:
             st.write("-",reason)
 
+        st.subheader("Redis")
+
+        cache_status = risk_result["cache_status"]
+
+        if cache_status == "BYPASS":
+            st.warning("Redis cache unavailable - scoring bypass cache")
+        else:
+            st.write(
+                "Redis Cache:",
+                cache_status
+            )
+
+
 st.subheader("Portfolio Analytics")
 
 portfolio_response = requests.get(
