@@ -45,10 +45,13 @@ st.dataframe(customers)
 
 st.subheader("Borrower Risk")
 
+with st.form("borrower_risk_form"):
+    customer_id = st.text_input("Customer ID")
+    analyze_risk = st.form_submit_button(
+        "Analyze Risk"
+    )
 
-customer_id = st.text_input("Customer ID")
-
-if st.button("Analyze Risk"):
+if analyze_risk:
     risk_response = requests.get(
         config["api_base_url"] + "/risk/" + customer_id
     )
@@ -64,42 +67,27 @@ if st.button("Analyze Risk"):
         )
 
         st.write(
+            "Risk Band:",
+            risk_result["risk_band"]
+        )
+
+        st.write("Risk Reasons:")
+
+        for reason in risk_result["reasons"]:
+            st.write("-", reason)
+
+        st.write(
                 "Model:",
                 risk_result["model_name"],
                 "v" + risk_result["model_version"]
         )
 
-        st.write(
-            "Risk Band:",
-            risk_result["risk_band"]
-        )
-        st.write(
-            "Request ID:",
-            risk_result["audit"]["request_id"]
-        )
-
-        st.write(
-            "Scored At:",
-            risk_result["audit"]["timestamp"]
-        )
-
-        st.write("Risk Reasons")
-
-        for reason in risk_result["reasons"]:
-            st.write("-",reason)
-
-        st.subheader("Redis")
-
         cache_status = risk_result["cache_status"]
 
         if cache_status == "BYPASS":
-            st.warning("Redis cache unavailable - scoring bypass cache")
+            st.warning("Redis Cache: Unavailable - cache bypassed")
         else:
-            st.write(
-                "Redis Cache:",
-                cache_status
-            )
-
+            st.write("Redis Cache:",cache_status)
 
 st.subheader("Portfolio Analytics")
 

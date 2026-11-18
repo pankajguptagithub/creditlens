@@ -14,6 +14,11 @@ def get_redis_client():
         socket_timeout=0.2
     )
 def get_cached_risk(customer_id):
+    config = load_config()
+
+    if not config["redis"]["enabled"]:
+        return None, "BYPASS"
+
     try:
         client = get_redis_client()
 
@@ -30,8 +35,10 @@ def get_cached_risk(customer_id):
         return None, "BYPASS"
 
 def save_cached_risk(customer_id,risk_result):
+    config = load_config()
+    if not config["redis"]["enabled"]:
+        return
     try:
-        config = load_config()
         client = get_redis_client()
 
         client.setex(

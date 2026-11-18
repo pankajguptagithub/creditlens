@@ -98,8 +98,8 @@ def score_customer_record(model, customer, payments):
         customer["customer_id"],
         risk_result
     )
-    create_audit_table()
-    save_audit_record(audit_record)
+    #create_audit_table()
+    #save_audit_record(audit_record)
 
     return {
         "customer_id": customer["customer_id"],

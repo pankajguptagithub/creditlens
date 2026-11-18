@@ -32,6 +32,7 @@ Thumbs.db
 #Generated data and model artifacts
 #data/
 models/
+data/delta/*_delta_log*/*.json
 
 #Logs
 *.log

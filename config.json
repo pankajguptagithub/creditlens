@@ -18,7 +18,7 @@
 	},
 	"audit_database_path": "data/creditlens.db",
 	"redis": {
-		"enabled": true,
+		"enabled": false,
 		"host": "localhost",
 		"port": 6379,
 		"ttl_seconds": 300
