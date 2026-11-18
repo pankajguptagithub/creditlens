@@ -1,3 +1,5 @@
+import math 
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
@@ -61,10 +63,22 @@ def evaluate_model(model, x_test,y_test):
     }
 
 def predict_default_probability(model, features):
+
+    if not features:
+        raise ValueError("Model features cannot be empty")
+
+    if any(value < 0 for value in features):
+        raise ValueError("Model features cannot contain negative values")
+    
+    if not all(math.isfinite(value) for value in features):
+        raise ValueError("Model features must contain finite values")
+
     # Probability for class 1 means probability of default
     probabilities = model.predict_proba([features])
+    if len(probabilities[0]) < 2:
+        raise ValueError("Model did not return probability for both classes")
 
-    return float(probabilities[0][1])
+    return float(max(0.0, min(1.0,probabilities[0][1])))
 
 def get_risk_band(default_probability):
     # Read configurable risk thresholds

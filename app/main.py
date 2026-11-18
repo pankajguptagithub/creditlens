@@ -1,6 +1,7 @@
 import logging
+import re
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from app.core.config import load_config
 from app.core.logging_config import setup_logging
 from app.domain.features import (
@@ -35,11 +36,15 @@ from app.domain.model_evaluation import(
     build_confusion_metrics
 )
 
-from app.data.audit_repository import load_audit_records
-
 from app.data.cache_repository import(
     get_cached_risk,
     save_cached_risk
+)
+from app.domain.audit import create_audit_record
+from app.data.audit_repository import(
+    load_audit_records,
+    create_audit_table,
+    save_audit_record
 )
 
 setup_logging()
@@ -120,6 +125,12 @@ def get_customer(customer_id: str):
 
 @app.get("/risk/{customer_id}")
 def get_customer_risk(customer_id):
+
+    if not re.fullmatch(r"C\d{3}", customer_id):
+        return{
+            "error" : "Invalid customer ID"
+        }
+
     cached_result, cache_status = get_cached_risk(customer_id)
 
     if cached_result is not None:
@@ -143,6 +154,16 @@ def get_customer_risk(customer_id):
         customer,
         payments
     )
+
+    audit_record = create_audit_record(
+        customer_id,
+        risk_result
+    )
+
+    create_audit_table()
+    save_audit_record(audit_record)
+    
+    risk_result["audit"] = audit_record
 
     save_cached_risk(
         customer_id,
@@ -221,21 +242,3 @@ def get_audit_records():
 @app.get("/model-status")
 def get_current_model_status():
     return get_model_status()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

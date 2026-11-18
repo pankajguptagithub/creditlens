@@ -85,7 +85,7 @@ if analyze_risk:
         cache_status = risk_result["cache_status"]
 
         if cache_status == "BYPASS":
-            st.warning("Redis Cache: Unavailable - cache bypassed")
+            st.warning("Redis Cache: Disabled or unavailable - cache bypassed")
         else:
             st.write("Redis Cache:",cache_status)
 
