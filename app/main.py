@@ -127,9 +127,10 @@ def get_customer(customer_id: str):
 def get_customer_risk(customer_id):
 
     if not re.fullmatch(r"C\d{3}", customer_id):
-        return{
-            "error" : "Invalid customer ID"
-        }
+        raise HTTPException(
+            status_code = 400,
+            detail = "Invalid customer ID"
+        )
 
     cached_result, cache_status = get_cached_risk(customer_id)
 
@@ -145,9 +146,10 @@ def get_customer_risk(customer_id):
     )
 
     if customer is None:
-        return{
-            "error" : "Customer not found"
-        }
+        raise HTTPException(
+            status_code = 404,
+            detail = "Invalid customer ID"
+        )
 
     risk_result = score_customer_record(
         model,
