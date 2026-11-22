@@ -18,8 +18,8 @@
 	},
 	"audit_database_path": "data/creditlens.db",
 	"redis": {
-		"enabled": false,
-		"host": "localhost",
+		"enabled": true,
+		"host": "host.docker.internal",
 		"port": 6379,
 		"ttl_seconds": 300
 	}

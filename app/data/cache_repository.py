@@ -1,7 +1,31 @@
 import json
 import redis
+import socket
 from app.core.config import load_config
 from redis.exceptions import RedisError, ConnectionError
+from redis.backoff import NoBackoff
+from redis.retry import Retry
+
+def is_redis_available():
+    config = load_config()
+
+    if not config["redis"]["enabled"]:
+        return false
+
+    try:
+        connection = socket.create_connection(
+            (
+                config["redis"]["host"],
+                config["redis"]["port"],
+            ),
+            timeout=0.2
+        )
+        connection.close()
+
+        return True
+
+    except OSError:
+        return False
 
 def get_redis_client():
     config = load_config()
@@ -11,9 +35,14 @@ def get_redis_client():
         port = config["redis"]["port"],
         decode_responses = True,
         socket_connect_timeout=0.2,
-        socket_timeout=0.2
+        socket_timeout=0.2,
+        retry=Retry(NoBackoff(),0)
     )
 def get_cached_risk(customer_id):
+
+    #if not is_redis_available():
+     #   return
+
     config = load_config()
 
     if not config["redis"]["enabled"]:
